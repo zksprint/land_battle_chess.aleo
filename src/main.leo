@@ -61,7 +61,7 @@ program land_battle_chess.aleo {
         return (val & x) >> row;
     }
 
-    inline check_range(board: board_state, is_player2: bool) -> bool {
+    function check_range(board: board_state, is_player2: bool) -> bool {
         let val: u64 = 1u64 << 30u32; 
         let mask: u64 = val - 1u64;
         if !is_player2 {
@@ -81,7 +81,7 @@ program land_battle_chess.aleo {
         return true;
     }
 
-    inline check_flag(board: board_state, is_player2: bool) -> bool {
+    function check_flag(board: board_state, is_player2: bool) -> bool {
         let flag: u64 = 1u64;
         let base0: u64 = get_piece(board, 0u64, 11u32);
         let base1: u64 = get_piece(board, 3u64, 11u32);
@@ -97,8 +97,7 @@ program land_battle_chess.aleo {
         return true;
     }
 
-/*
-    inline check_camp(board: board_state, is_player2: bool) -> bool {
+    function check_camp(board: board_state, is_player2: bool) -> bool {
         let camp0: u64 = get_piece(board, 1u64, 7u32);
         let camp1: u64 = get_piece(board, 1u64, 9u32);
         let camp2: u64 = get_piece(board, 3u64, 7u32);
@@ -117,7 +116,7 @@ program land_battle_chess.aleo {
         return true;
     }
 
-    inline check_landmine(board: board_state, is_player2: bool) -> bool {
+    function check_landmine(board: board_state, is_player2: bool) -> bool {
         let landmine: u64 = 3u64;
         let landmine_cnt: u64 = 0u64;
 
@@ -185,7 +184,7 @@ program land_battle_chess.aleo {
         return true;
     }
 
-    inline check_bomb(board: board_state, is_player2: bool) -> bool {
+    function check_bomb(board: board_state, is_player2: bool) -> bool {
         let bomb: u64 = 2u64;
         let local0: u64 = get_piece(board, 0u64, 5u32);
         let local1: u64 = get_piece(board, 1u64, 5u32);
@@ -207,33 +206,8 @@ program land_battle_chess.aleo {
         return true;
     }
 
-    inline check_initial_placement(board: board_state, is_player2: bool) -> bool {
-        if !check_range(board, is_player2) {
-            return false;
-        }
-
-        if !check_bomb(board, is_player2) {
-            return false;
-        }
-
-        if !check_landmine(board, is_player2) {
-            return false;
-        }
-
-        if !check_camp(board, is_player2) {
-            return false;
-        }
-
-        if !check_flag(board, is_player2) {
-            return false;
-        }
-
-        return true;
-    }
-    */
-
-    transition player_setup(board: board_state, flag_x: u64, flag_y: u32) -> player_state {
-        return player_state {
+    transition player_setup(board: board_state, flag_x: u64, flag_y: u32, is_player2: bool) -> (player_state, bool) {
+        let state:player_state = player_state{
             owner: self.caller,
             gates: 0u64,
 
@@ -241,5 +215,27 @@ program land_battle_chess.aleo {
             flag_x: flag_x,
             flag_y: flag_y,
         };
+
+        if !check_range(board, is_player2) {
+            return (state, false);
+        }
+
+        if !check_bomb(board, is_player2) {
+            return (state, false);
+        }
+
+        if !check_landmine(board, is_player2) {
+            return (state, false);
+        }
+
+        if !check_camp(board, is_player2) {
+            return (state, false);
+        }
+
+        if !check_flag(board, is_player2) {
+            return (state, false);
+        }
+
+        return (state, true);
     }
 }
