@@ -190,18 +190,18 @@ program land_battle_chess.aleo {
         General = 11,
         FieldMarshal = 12,
         */
-        let flag_num = 0u32;
-        let bomb_num = 0u32;
-        let landmine_num = 0u32;
-        let engineer_num = 0u32;
-        let lieutenant_num = 0u32;
-        let captain_num = 0u32;
-        let major_num = 0u32;
-        let colonel_num = 0u32;
-        let brigadier_num = 0u32;
-        let major_general_num = 0u32;
-        let general_num = 0u32;
-        let field_marshal_num = 0u32;
+        let flag_num: u32 = 0u32;
+        let bomb_num: u32 = 0u32;
+        let landmine_num: u32 = 0u32;
+        let engineer_num: u32 = 0u32;
+        let lieutenant_num: u32 = 0u32;
+        let captain_num: u32 = 0u32;
+        let major_num: u32 = 0u32;
+        let colonel_num: u32 = 0u32;
+        let brigadier_num: u32 = 0u32;
+        let major_general_num: u32 = 0u32;
+        let general_num: u32 = 0u32;
+        let field_marshal_num: u32 = 0u32;
 
         if is_player2 {
             for x: u64 in 0u64..5u64 {
