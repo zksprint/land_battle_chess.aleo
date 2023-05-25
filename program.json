@@ -1,0 +1,10 @@
+{
+    "program": "land_battle_chess.aleo",
+    "version": "0.0.0",
+    "description": "",
+    "development": {
+        "private_key": "APrivateKey1zkpBi4BYydwCZ1tU71WKLCSbxPLzdFHp9aYgGPBVn9wYBKN",
+        "address": "aleo13nnm772d8a7k7yt87asgyn7fa3cw7m0nddzq60yxuzlyrvwqk5zst0w3xj"
+    },
+    "license": "MIT"
+}
