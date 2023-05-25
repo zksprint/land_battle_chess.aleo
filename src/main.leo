@@ -118,89 +118,177 @@ program land_battle_chess.aleo {
 
     function check_landmine(board: board_state, is_player2: bool) -> bool {
         let landmine: u64 = 3u64;
-        let landmine_cnt: u64 = 0u64;
-
-        let local0: u64 = get_piece(board, 0u64, 0u32);
-        let local1: u64 = get_piece(board, 1u64, 0u32);
-        let local2: u64 = get_piece(board, 2u64, 0u32);
-        let local3: u64 = get_piece(board, 3u64, 0u32);
-        let local4: u64 = get_piece(board, 4u64, 0u32);
-        let local5: u64 = get_piece(board, 0u64, 1u32);
-        let local6: u64 = get_piece(board, 1u64, 1u32);
-        let local7: u64 = get_piece(board, 2u64, 1u32);
-        let local8: u64 = get_piece(board, 3u64, 1u32);
-        let local9: u64 = get_piece(board, 4u64, 1u32);
+        let cnt: u32 = 0u32;
 
         if is_player2 {
-            local0 = get_piece(board, 0u64, 10u32);
-            local1 = get_piece(board, 1u64, 10u32);
-            local2 = get_piece(board, 2u64, 10u32);
-            local3 = get_piece(board, 3u64, 10u32);
-            local4 = get_piece(board, 4u64, 10u32);
-            local5 = get_piece(board, 0u64, 11u32);
-            local6 = get_piece(board, 1u64, 11u32);
-            local7 = get_piece(board, 2u64, 11u32);
-            local8 = get_piece(board, 3u64, 11u32);
-            local9 = get_piece(board, 4u64, 11u32);
+            for i: u64 in 0u64..5u64 {
+                let piece: u64 = get_piece(board, i, 10u32);
+                if piece == landmine {
+                    cnt += 1u32;
+                }
+            }
+            for i: u64 in 0u64..5u64 {
+                let piece: u64 = get_piece(board, i, 11u32);
+                if piece == landmine {
+                    cnt += 1u32;
+                }
+            }
+        } else {
+            for i: u64 in 0u64..5u64 {
+                let piece: u64 = get_piece(board, i, 0u32);
+                if piece == landmine {
+                    cnt += 1u32;
+                }
+            }
+            for i: u64 in 0u64..5u64 {
+                let piece: u64 = get_piece(board, i, 1u32);
+                if piece == landmine {
+                    cnt += 1u32;
+                }
+            }
+
         }
 
-        if local0 == landmine {
-            landmine_cnt = landmine_cnt + 1u64;
-        }
-
-        if local1 == landmine {
-            landmine_cnt = landmine_cnt + 1u64;
-        }
-
-        if local2 == landmine {
-            landmine_cnt = landmine_cnt + 1u64;
-        }
-        if local3 == landmine {
-            landmine_cnt = landmine_cnt + 1u64;
-        }
-        if local4 == landmine {
-            landmine_cnt = landmine_cnt + 1u64;
-        }
-        if local5 == landmine {
-            landmine_cnt = landmine_cnt + 1u64;
-        }
-        if local6 == landmine {
-            landmine_cnt = landmine_cnt + 1u64;
-        }
-        if local7 == landmine {
-            landmine_cnt = landmine_cnt + 1u64;
-        }
-        if local8 == landmine {
-            landmine_cnt = landmine_cnt + 1u64;
-        }
-        if local9 == landmine {
-            landmine_cnt = landmine_cnt + 1u64;
-        }
-
-        if landmine_cnt != 3u64 {
+        if cnt != 3u32 {
             return false;
         }
-
         return true;
     }
 
     function check_bomb(board: board_state, is_player2: bool) -> bool {
         let bomb: u64 = 2u64;
-        let local0: u64 = get_piece(board, 0u64, 5u32);
-        let local1: u64 = get_piece(board, 1u64, 5u32);
-        let local2: u64 = get_piece(board, 2u64, 5u32);
-        let local3: u64 = get_piece(board, 3u64, 5u32);
-        let local4: u64 = get_piece(board, 4u64, 5u32);
+        if is_player2 {
+            for i: u64 in 0u64..5u64 {
+                let piece: u64 = get_piece(board, 0u64, 6u32);
+                if piece == bomb {
+                    return false;
+                }
+            }
+        } else {
+            for i: u64 in 0u64..5u64 {
+                let piece: u64 = get_piece(board, 0u64, 5u32);
+                if piece == bomb {
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+
+    function check_piece_num(board: board_state, is_player2: bool) -> bool {
+        /*
+        Flag = 1, n: 1
+        Bomb = 2,
+        Landmine = 3,
+        Engineer = 4,
+        Lieutenant = 5,
+        Captain = 6,
+        Major = 7,
+        Colonel = 8,
+        Brigadier = 9,
+        MajorGeneral = 10,
+        General = 11,
+        FieldMarshal = 12,
+        */
+        let flag_num = 0u32;
+        let bomb_num = 0u32;
+        let landmine_num = 0u32;
+        let engineer_num = 0u32;
+        let lieutenant_num = 0u32;
+        let captain_num = 0u32;
+        let major_num = 0u32;
+        let colonel_num = 0u32;
+        let brigadier_num = 0u32;
+        let major_general_num = 0u32;
+        let general_num = 0u32;
+        let field_marshal_num = 0u32;
 
         if is_player2 {
-            local0 = get_piece(board, 0u64, 6u32);
-            local1 = get_piece(board, 1u64, 6u32);
-            local2 = get_piece(board, 2u64, 6u32);
-            local3 = get_piece(board, 3u64, 6u32);
-            local4 = get_piece(board, 4u64, 6u32);
+            for x: u64 in 0u64..5u64 {
+                for y: u64: in 6u32..12u32 {
+                    let piece: u64 = get_piece(board, x, y);
+                    if piece == 1u32 {
+                        flag_num += 1u32;
+                    } else if piece == 2u32 {
+                        bomb_num += 1u32;
+                    } else if piece == 3u32 {
+                        landmine_num += 1u32;
+                    } else if piece == 4u32 {
+                        engineer_num += 1u32;
+                    } else if piece == 5u32 {
+                        lieutenant_num += 1u32;
+                    } else if piece == 6u32 {
+                        captain_num += 1u32;
+                    } else if piece == 7u32 {
+                        major_num += 1u32;
+                    } else if piece == 8u32 {
+                        colonel_num += 1u32;
+                    } else if piece == 9u32 {
+                        brigadier_num += 1u32;
+                    } else if piece == 10u32 {
+                        major_general_num += 1u32;
+                    } else if piece == 11u32 {
+                        general_num += 1u32;
+                    } else if piece == 12u32 {
+                        field_marshal_num += 1u32;
+                    }
+                }
+            }
+        } else {
+            for x: u64 in 0u64..5u64 {
+                for y: u64: in 0u32..6u32 {
+                    let piece: u64 = get_piece(board, x, y);
+                    if piece == 1u32 {
+                        flag_num += 1u32;
+                    } else if piece == 2u32 {
+                        bomb_num += 1u32;
+                    } else if piece == 3u32 {
+                        landmine_num += 1u32;
+                    } else if piece == 4u32 {
+                        engineer_num += 1u32;
+                    } else if piece == 5u32 {
+                        lieutenant_num += 1u32;
+                    } else if piece == 6u32 {
+                        captain_num += 1u32;
+                    } else if piece == 7u32 {
+                        major_num += 1u32;
+                    } else if piece == 8u32 {
+                        colonel_num += 1u32;
+                    } else if piece == 9u32 {
+                        brigadier_num += 1u32;
+                    } else if piece == 10u32 {
+                        major_general_num += 1u32;
+                    } else if piece == 11u32 {
+                        general_num += 1u32;
+                    } else if piece == 12u32 {
+                        field_marshal_num += 1u32;
+                    }
+                }
+            }
         }
-
-        if local0 == bomb || local1 == bomb || local2 == bomb || local3 == bomb || local4 == bomb {
+        if flag_num != 1u32 {
+            return false;
+        } else if bomb_num != 3u32 {
+            return false;
+        } else if landmine_num != 3u32 {
+            return false;
+        } else if engineer_num != 3u32 {
+            return false;
+        } else if lieutenant_num != 2u32 {
+            return false;
+        } else if captain_num != 2u32 {
+            return false;
+        } else if major_num != 2u32 {
+            return false;
+        } else if colonel_num != 2u32 {
+            return false;
+        } else if brigadier_num != 2u32 {
+            return false;
+        } else if major_general_num != 2u32 {
+            return false;
+        } else if general_num != 1u32 {
+            return false;
+        } else if field_marshal_num != 1u32 {
             return false;
         }
         return true;
@@ -233,6 +321,10 @@ program land_battle_chess.aleo {
         }
 
         if !check_flag(board, is_player2) {
+            return (state, false);
+        }
+
+        if !check_piece_num(board, is_player2) {
             return (state, false);
         }
 
