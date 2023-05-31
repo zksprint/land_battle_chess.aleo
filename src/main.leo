@@ -14,7 +14,7 @@ program land_battle_chess.aleo {
         MajorGeneral = 10,
         General = 11,
         FieldMarshal = 12,
-        Invalid = 13,
+        Unchanged = 15,
         Opponent = 16,
      */
     struct board_state {
@@ -25,11 +25,47 @@ program land_battle_chess.aleo {
         line4: u64,
     }
 
+/*
+0 <= X < 5
+0 <= Y < 12
+*/
+    struct move {
+        player: address,
+
+        x: u64,
+        y: u32,
+        target_x: u64,
+        target_y: u32,
+
+        attack_result: u32 // 0: simple move, 1: win, 2: draw, 3: lose
+
+        opp_victim: u64,
+
+        flag_x: u64,
+        flag_y: u32,
+    }
+
     record player_state {
         owner: address,
         gates: u64,
 
         board: board_state,
+        flag_x: u64,
+        flag_y: u32,
+
+        game_state: u32, // 1: win, 2: lose
+        arbiter: address,
+    }
+
+    record piece_info {
+        owner: address,
+        gates: u64,
+
+        player: address,
+        piece: u64,
+        x: u64,
+        y: u32,
+
         flag_x: u64,
         flag_y: u32,
     }
@@ -205,62 +241,62 @@ program land_battle_chess.aleo {
 
         if is_player2 {
             for x: u64 in 0u64..5u64 {
-                for y: u64: in 6u32..12u32 {
+                for y: u32 in 6u32..12u32 {
                     let piece: u64 = get_piece(board, x, y);
-                    if piece == 1u32 {
+                    if piece == 1u64 {
                         flag_num += 1u32;
-                    } else if piece == 2u32 {
+                    } else if piece == 2u64 {
                         bomb_num += 1u32;
-                    } else if piece == 3u32 {
+                    } else if piece == 3u64 {
                         landmine_num += 1u32;
-                    } else if piece == 4u32 {
+                    } else if piece == 4u64 {
                         engineer_num += 1u32;
-                    } else if piece == 5u32 {
+                    } else if piece == 5u64 {
                         lieutenant_num += 1u32;
-                    } else if piece == 6u32 {
+                    } else if piece == 6u64 {
                         captain_num += 1u32;
-                    } else if piece == 7u32 {
+                    } else if piece == 7u64 {
                         major_num += 1u32;
-                    } else if piece == 8u32 {
+                    } else if piece == 8u64 {
                         colonel_num += 1u32;
-                    } else if piece == 9u32 {
+                    } else if piece == 9u64 {
                         brigadier_num += 1u32;
-                    } else if piece == 10u32 {
+                    } else if piece == 10u64 {
                         major_general_num += 1u32;
-                    } else if piece == 11u32 {
+                    } else if piece == 11u64 {
                         general_num += 1u32;
-                    } else if piece == 12u32 {
+                    } else if piece == 12u64 {
                         field_marshal_num += 1u32;
                     }
                 }
             }
         } else {
             for x: u64 in 0u64..5u64 {
-                for y: u64: in 0u32..6u32 {
+                for y: u32 in 0u32..6u32 {
                     let piece: u64 = get_piece(board, x, y);
-                    if piece == 1u32 {
+                    if piece == 1u64 {
                         flag_num += 1u32;
-                    } else if piece == 2u32 {
+                    } else if piece == 2u64 {
                         bomb_num += 1u32;
-                    } else if piece == 3u32 {
+                    } else if piece == 3u64 {
                         landmine_num += 1u32;
-                    } else if piece == 4u32 {
+                    } else if piece == 4u64 {
                         engineer_num += 1u32;
-                    } else if piece == 5u32 {
+                    } else if piece == 5u64 {
                         lieutenant_num += 1u32;
-                    } else if piece == 6u32 {
+                    } else if piece == 6u64 {
                         captain_num += 1u32;
-                    } else if piece == 7u32 {
+                    } else if piece == 7u64 {
                         major_num += 1u32;
-                    } else if piece == 8u32 {
+                    } else if piece == 8u64 {
                         colonel_num += 1u32;
-                    } else if piece == 9u32 {
+                    } else if piece == 9u64 {
                         brigadier_num += 1u32;
-                    } else if piece == 10u32 {
+                    } else if piece == 10u64 {
                         major_general_num += 1u32;
-                    } else if piece == 11u32 {
+                    } else if piece == 11u64 {
                         general_num += 1u32;
-                    } else if piece == 12u32 {
+                    } else if piece == 12u64 {
                         field_marshal_num += 1u32;
                     }
                 }
@@ -294,7 +330,7 @@ program land_battle_chess.aleo {
         return true;
     }
 
-    transition player_setup(board: board_state, flag_x: u64, flag_y: u32, is_player2: bool) -> (player_state, bool) {
+    transition player_setup(board: board_state, flag_x: u64, flag_y: u32, is_player2: bool, arbiter: address) -> (player_state, bool) {
         let state:player_state = player_state{
             owner: self.caller,
             gates: 0u64,
@@ -302,8 +338,12 @@ program land_battle_chess.aleo {
             board: board,
             flag_x: flag_x,
             flag_y: flag_y,
+
+            game_state: 0u32,
+            arbiter: arbiter,
         };
 
+/*
         if !check_range(board, is_player2) {
             return (state, false);
         }
@@ -327,7 +367,184 @@ program land_battle_chess.aleo {
         if !check_piece_num(board, is_player2) {
             return (state, false);
         }
+*/
 
         return (state, true);
     }
+
+    transition move_piece(state: player_state, self_move: move, opp_move: move,
+        public x: u64, public y: u32, public target_x: u64, public target_y: u32) -> (player_state, piece_info) {
+        assert_eq(state.game_state, 0u32);
+        let board: board_state = state.board;
+        if self_move.x < 5u64 {
+            let piece: u64 = get_piece(board, self_move.x, self_move.y);
+            board = empty_board(board, self_move.x, self_move.y);
+            if self_move.attack_result == 0u32 || self_move.attack_result == 1u32 {
+                board = place_piece(board, self_move.target_x, self_move.target_y, piece);
+            } else if self_move.attack_result == 2u32 {
+                board = empty_board(board, self_move.x, self_move.y);
+            }
+        }
+        
+        if self_move.opp_victim == 1u64 {
+            return (player_state {
+                owner: self.caller,
+                gates: 0u64,
+                board: board,
+                game_state: 1u32,
+                flag_x: state.flag_x,
+                flag_y: state.flag_y,
+                arbiter: state.arbiter,
+            }, piece_info { owner: state.arbiter, gates: 0u64, player:state.owner, piece:0u64, x:0u64, y:0u32, flag_x:0u64, flag_y:0u32});
+        }
+
+        if opp_move.x < 5u64 {
+            board = empty_board(board, opp_move.x, opp_move.y);
+            if opp_move.attack_result == 0u32 || opp_move.attack_result == 1u32 {
+                board = place_piece(board, opp_move.target_x, opp_move.target_y, 16u64);
+            } else if opp_move.attack_result == 2u32 {
+                board = empty_board(board, opp_move.target_x, opp_move.target_y);
+            }
+        }
+
+        if opp_move.opp_victim == 1u64 {
+            return (player_state {
+                owner: self.caller,
+                gates: 0u64,
+                board: board,
+                game_state: 2u32,
+                flag_x: state.flag_x,
+                flag_y: state.flag_y,
+                arbiter: state.arbiter,
+            }, piece_info { owner: state.arbiter, gates: 0u64, player:state.owner, piece:0u64, x:0u64, y:0u32, flag_x:0u64, flag_y:0u32});
+        }
+
+        let piece: u64 = get_piece(board, x, y);
+        let flag_x: u64 = 5u64;
+        let flag_y: u32 = 0u32;
+        if piece == 12u64 {
+            flag_x = state.flag_x;
+            flag_y = state.flag_y;
+        }
+
+        return (player_state {
+            owner: self.caller,
+            gates: 0u64,
+            board: board,
+            game_state: 0u32,
+            flag_x: state.flag_x,
+            flag_y: state.flag_y,
+            arbiter: state.arbiter,
+        }, piece_info { owner: state.arbiter, gates: 0u64, player:state.owner, piece:piece, x:x, y:y, flag_x:flag_x, flag_y:flag_y});
+    }
+
+    transition reveal_piece(state: player_state, x: u64, y: u32) -> piece_info {
+        let piece: u64 = get_piece(state.board, x, y);
+        let flag_x: u64 = 5u64;
+        let flag_y: u32 = 0u32;
+        if piece == 12u64 {
+            flag_x = state.flag_x;
+            flag_y = state.flag_y;
+        }
+
+        return piece_info { owner: state.arbiter, gates: 0u64, player:state.owner,piece:piece, x:x, y:y, flag_x:flag_x, flag_y:flag_y};
+    }
+
+    transition arb_piece(attacker: piece_info, target: piece_info) -> move {
+        let attack_result: u32 = 0u32;
+        let opp_victim: u64 = 0u64;
+        let flag_x: u64 = 5u64;
+        let flag_y: u32 = 12u32;
+
+        if attacker.piece == 2u64 || target.piece == 2u64 { //bomb
+            attack_result = 2u32;
+            opp_victim = target.piece;
+        } else if target.piece == 3u64 {//landmine
+            if attacker.piece == 4u64 {//engineer
+                attack_result = 1u32;
+                opp_victim = target.piece;
+            } else {
+                attack_result = 3u32;
+            }
+        } else if attacker.piece > target.piece {
+            attack_result = 1u32;
+            opp_victim = target.piece;
+        } else if attacker.piece == target.piece {
+            attack_result = 2u32;
+            opp_victim = target.piece;
+        } else {
+            attack_result = 3u32;
+        }
+
+        if attacker.piece == 12u64 && (attack_result == 2u32 || attack_result == 3u32) {
+            flag_x = attacker.flag_x;
+            flag_y = attacker.flag_y;
+        } else if opp_victim == 12u64 {
+            flag_x = target.flag_x;
+            flag_y = target.flag_y;
+        }
+
+        return move {
+            player: attacker.player,
+            x: attacker.x,
+            y: attacker.y,
+            target_x: target.x,
+            target_y: target.y,
+            attack_result: attack_result,
+            opp_victim: opp_victim,
+            flag_x: flag_x,
+            flag_y: flag_y,
+        };
+    }
+
+    function empty_board(board: board_state, x: u64, y: u32) -> board_state {
+        let line0: u64 = board.line0;
+        let line1: u64 = board.line1;
+        let line2: u64 = board.line2;
+        let line3: u64 = board.line3;
+        let line4: u64 = board.line4;
+
+        let val: u64 = 31u64 << (y * 5u32);
+        let mask: u64 = 18446744073709551615u64 - val;
+
+        // empty square
+        if x == 0u64 {
+            line0 = mask & line0;
+        } else if x == 1u64 {
+            line1 = mask & line1;
+        } else if x == 2u64 {
+            line2 = mask & line2;
+        } else if x == 3u64 {
+            line3 = mask & line3;
+        } else {
+            line4 = mask & line4;
+        }
+        return board_state { line0: line0, line1: line1, line2:line2, line3:line3, line4: line4};
+    }
+
+    function place_piece(board: board_state, x: u64, y: u32, piece: u64) -> board_state {
+        let line0: u64 = board.line0;
+        let line1: u64 = board.line1;
+        let line2: u64 = board.line2;
+        let line3: u64 = board.line3;
+        let line4: u64 = board.line4;
+
+        let shift: u32 = y * 5u32;
+        piece = piece << shift;
+
+        if x == 0u64 {
+            line0 = piece | line0;
+        } else if x == 1u64 {
+            line1 = piece | line1;
+        } else if x == 2u64 {
+            line2 = piece | line2;
+        } else if x == 3u64 {
+            line3 = piece | line3;
+        } else {
+            line4 = piece | line4;
+        }
+
+        return board_state { line0: line0, line1: line1, line2:line2, line3:line3, line4: line4};
+    }
+
 }
