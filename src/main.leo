@@ -25,7 +25,7 @@ program land_battle_chess.aleo {
         line4: u64,
     }
 
-/*
+/* position range:
 0 <= X < 5
 0 <= Y < 12
 */
@@ -39,10 +39,12 @@ program land_battle_chess.aleo {
 
         attack_result: u32 // 0: simple move, 1: win, 2: draw, 3: lose
 
-        opp_victim: u64,
-
         flag_x: u64,
         flag_y: u32,
+        opp_flag_x: u64,
+        opp_flag_y: u32,
+
+        game_winner: u32,
     }
 
     record player_state {
@@ -53,8 +55,9 @@ program land_battle_chess.aleo {
         flag_x: u64,
         flag_y: u32,
 
-        game_state: u32, // 1: win, 2: lose
+        game_winner: u32, // 0, 1 or 2
         arbiter: address,
+        player_index: u32, // 1 or 2
     }
 
     record piece_info {
@@ -213,7 +216,7 @@ program land_battle_chess.aleo {
 
     function check_piece_num(board: board_state, is_player2: bool) -> bool {
         /*
-        Flag = 1, n: 1
+        Flag = 1,
         Bomb = 2,
         Landmine = 3,
         Engineer = 4,
@@ -330,7 +333,7 @@ program land_battle_chess.aleo {
         return true;
     }
 
-    transition player_setup(board: board_state, flag_x: u64, flag_y: u32, is_player2: bool, arbiter: address) -> (player_state, bool) {
+    transition player_setup(board: board_state, flag_x: u64, flag_y: u32, player_index: u32, arbiter: address) -> (player_state, bool) {
         let state:player_state = player_state{
             owner: self.caller,
             gates: 0u64,
@@ -339,8 +342,9 @@ program land_battle_chess.aleo {
             flag_x: flag_x,
             flag_y: flag_y,
 
-            game_state: 0u32,
+            game_winner: 0u32,
             arbiter: arbiter,
+            player_index: player_index,
         };
 
 /*
@@ -374,30 +378,19 @@ program land_battle_chess.aleo {
 
     transition move_piece(state: player_state, self_move: move, opp_move: move,
         public x: u64, public y: u32, public target_x: u64, public target_y: u32) -> (player_state, piece_info) {
-        assert_eq(state.game_state, 0u32);
+        assert_eq(state.game_winner, 0u32);
         let board: board_state = state.board;
+        let game_winner: u32 = 0u32;
         if self_move.x < 5u64 {
             let piece: u64 = get_piece(board, self_move.x, self_move.y);
             board = empty_board(board, self_move.x, self_move.y);
-            if self_move.attack_result == 0u32 || self_move.attack_result == 1u32 {
+            if self_move.attack_result == 0u32 || self_move.attack_result == 1u32 {// win or simple move
                 board = place_piece(board, self_move.target_x, self_move.target_y, piece);
-            } else if self_move.attack_result == 2u32 {
+            } else if self_move.attack_result == 2u32 { // draw
                 board = empty_board(board, self_move.x, self_move.y);
             }
         }
         
-        if self_move.opp_victim == 1u64 {
-            return (player_state {
-                owner: self.caller,
-                gates: 0u64,
-                board: board,
-                game_state: 1u32,
-                flag_x: state.flag_x,
-                flag_y: state.flag_y,
-                arbiter: state.arbiter,
-            }, piece_info { owner: state.arbiter, gates: 0u64, player:state.owner, piece:0u64, x:0u64, y:0u32, flag_x:0u64, flag_y:0u32});
-        }
-
         if opp_move.x < 5u64 {
             board = empty_board(board, opp_move.x, opp_move.y);
             if opp_move.attack_result == 0u32 || opp_move.attack_result == 1u32 {
@@ -407,15 +400,22 @@ program land_battle_chess.aleo {
             }
         }
 
-        if opp_move.opp_victim == 1u64 {
+        if self_move.game_winner != 0u32 {
+            game_winner = self_move.game_winner;
+        } else if opp_move.game_winner != 0u32 {
+            game_winner = opp_move.game_winner;
+        }
+
+        if game_winner != 0u32 {
             return (player_state {
                 owner: self.caller,
                 gates: 0u64,
                 board: board,
-                game_state: 2u32,
+                game_winner: game_winner,
                 flag_x: state.flag_x,
                 flag_y: state.flag_y,
                 arbiter: state.arbiter,
+                player_index: state.player_index,
             }, piece_info { owner: state.arbiter, gates: 0u64, player:state.owner, piece:0u64, x:0u64, y:0u32, flag_x:0u64, flag_y:0u32});
         }
 
@@ -431,14 +431,15 @@ program land_battle_chess.aleo {
             owner: self.caller,
             gates: 0u64,
             board: board,
-            game_state: 0u32,
             flag_x: state.flag_x,
             flag_y: state.flag_y,
             arbiter: state.arbiter,
+            game_winner: 0u32,
+            player_index: state.player_index,
         }, piece_info { owner: state.arbiter, gates: 0u64, player:state.owner, piece:piece, x:x, y:y, flag_x:flag_x, flag_y:flag_y});
     }
 
-    transition reveal_piece(state: player_state, x: u64, y: u32) -> piece_info {
+    transition whisper_piece(state: player_state, x: u64, y: u32) -> piece_info {
         let piece: u64 = get_piece(state.board, x, y);
         let flag_x: u64 = 5u64;
         let flag_y: u32 = 0u32;
@@ -452,36 +453,57 @@ program land_battle_chess.aleo {
 
     transition arb_piece(attacker: piece_info, target: piece_info) -> move {
         let attack_result: u32 = 0u32;
+        let victim: u64 = 0u64;
         let opp_victim: u64 = 0u64;
         let flag_x: u64 = 5u64;
         let flag_y: u32 = 12u32;
+        let opp_flag_x: u64 = 5u64;
+        let opp_flag_y: u32 = 12u32;
+        let game_winner: u32 = 0u32;
 
-        if attacker.piece == 2u64 || target.piece == 2u64 { //bomb
+        if target.piece == 0u64 {
+            attack_result = 0u32;
+        } else if attacker.piece == 2u64 || target.piece == 2u64 { //bomb
             attack_result = 2u32;
             opp_victim = target.piece;
         } else if target.piece == 3u64 {//landmine
             if attacker.piece == 4u64 {//engineer
                 attack_result = 1u32;
-                opp_victim = target.piece;
             } else {
                 attack_result = 3u32;
             }
         } else if attacker.piece > target.piece {
             attack_result = 1u32;
-            opp_victim = target.piece;
         } else if attacker.piece == target.piece {
             attack_result = 2u32;
-            opp_victim = target.piece;
         } else {
             attack_result = 3u32;
         }
 
-        if attacker.piece == 12u64 && (attack_result == 2u32 || attack_result == 3u32) {
+        if attack_result == 1u32 {
+            opp_victim = target.piece;
+        } else if attack_result == 2u32 {
+            opp_victim = target.piece;
+            victim = attacker.piece;
+        } else if attack_result == 3u32 {
+            victim = attacker.piece;
+        }
+
+        if victim == 12u64 {
             flag_x = attacker.flag_x;
             flag_y = attacker.flag_y;
-        } else if opp_victim == 12u64 {
-            flag_x = target.flag_x;
-            flag_y = target.flag_y;
+        }
+
+        if opp_victim == 12u64 {
+            opp_flag_x = target.flag_x;
+            opp_flag_y = target.flag_y;
+        }
+
+        // flag
+        if victim == 1u64 {
+            game_winner = 2u32;
+        } else if opp_victim == 1u64 {
+            game_winner = 1u32;
         }
 
         return move {
@@ -491,9 +513,11 @@ program land_battle_chess.aleo {
             target_x: target.x,
             target_y: target.y,
             attack_result: attack_result,
-            opp_victim: opp_victim,
             flag_x: flag_x,
             flag_y: flag_y,
+            opp_flag_x: opp_flag_x,
+            opp_flag_y: opp_flag_y,
+            game_winner: game_winner,
         };
     }
 
