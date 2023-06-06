@@ -119,7 +119,7 @@ program land_battle_chess.aleo {
 
         return true;
     }
-
+/*
     function check_flag(board: board_state, is_player2: bool) -> bool {
         let flag: u64 = 1u64;
         let base0: u64 = get_piece(board, 0u64, 11u32);
@@ -215,20 +215,6 @@ program land_battle_chess.aleo {
     }
 
     function check_piece_num(board: board_state, is_player2: bool) -> bool {
-        /*
-        Flag = 1,
-        Bomb = 2,
-        Landmine = 3,
-        Engineer = 4,
-        Lieutenant = 5,
-        Captain = 6,
-        Major = 7,
-        Colonel = 8,
-        Brigadier = 9,
-        MajorGeneral = 10,
-        General = 11,
-        FieldMarshal = 12,
-        */
         let flag_num: u32 = 0u32;
         let bomb_num: u32 = 0u32;
         let landmine_num: u32 = 0u32;
@@ -332,6 +318,7 @@ program land_battle_chess.aleo {
         }
         return true;
     }
+*/
 
     transition player_setup(board: board_state, flag_x: u64, flag_y: u32, player_index: u32, arbiter: address) -> (player_state, bool) {
         let state:player_state = player_state{
@@ -347,11 +334,12 @@ program land_battle_chess.aleo {
             player_index: player_index,
         };
 
-/*
+        let is_player2: bool = player_index == 2u32;
         if !check_range(board, is_player2) {
             return (state, false);
         }
 
+/*
         if !check_bomb(board, is_player2) {
             return (state, false);
         }
@@ -379,7 +367,7 @@ program land_battle_chess.aleo {
     transition move_piece(state: player_state, self_move: move, opp_move: move,
         public x: u64, public y: u32, public target_x: u64, public target_y: u32) -> (player_state, piece_info) {
         assert_eq(state.game_winner, 0u32);
-        let board: board_state = state.board;
+        let board: board_state = board_state{line0:state.board.line0, line1:state.board.line1,line2:state.board.line2, line3:state.board.line3,line4:state.board.line4};
         let game_winner: u32 = 0u32;
         if self_move.x < 5u64 {
             let piece: u64 = get_piece(board, self_move.x, self_move.y);
