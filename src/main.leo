@@ -477,7 +477,7 @@ they are temporarily commented out.
         return piece_info { owner: state.arbiter, gates: 0u64, player:state.owner,piece:piece, x:x, y:y, flag_x:flag_x, flag_y:flag_y};
     }
 
-    transition compare_piece(attacker: piece_info, target: piece_info) -> move {
+    transition compare_piece(attacker: piece_info, target: piece_info) -> (move, move) {
         let attack_result: u32 = 0u32;
         let victim: u64 = 0u64;
         let opp_victim: u64 = 0u64;
@@ -532,7 +532,7 @@ they are temporarily commented out.
             game_winner = 1u32;
         }
 
-        return move {
+        return (move {
             player: attacker.player,
             x: attacker.x,
             y: attacker.y,
@@ -544,7 +544,19 @@ they are temporarily commented out.
             opp_flag_x: opp_flag_x,
             opp_flag_y: opp_flag_y,
             game_winner: game_winner,
-        };
+        }, move {
+            player: target.player,
+            x: attacker.x,
+            y: attacker.y,
+            target_x: target.x,
+            target_y: target.y,
+            attack_result: attack_result,
+            flag_x: flag_x,
+            flag_y: flag_y,
+            opp_flag_x: opp_flag_x,
+            opp_flag_y: opp_flag_y,
+            game_winner: game_winner,
+        });
     }
 
     function empty_board(board: board_state, x: u64, y: u32) -> board_state {
