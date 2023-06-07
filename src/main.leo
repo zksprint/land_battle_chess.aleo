@@ -320,7 +320,9 @@ program land_battle_chess.aleo {
     }
 */
 
-    transition player_setup(board: board_state, flag_x: u64, flag_y: u32, player_index: u32, arbiter: address) -> (player_state, bool) {
+    transition player_initialize_board(line0: u64, line1: u64, line2: u64, line3: u64, line4: u64,
+        flag_x: u64, flag_y: u32, public player_index: u32, public arbiter: address) -> (player_state, bool) {
+        let board: board_state = board_state{line0:line0, line1:line1,line2:line2,line3:line3,line4:line4};
         let state:player_state = player_state{
             owner: self.caller,
             gates: 0u64,
@@ -439,7 +441,7 @@ program land_battle_chess.aleo {
         return piece_info { owner: state.arbiter, gates: 0u64, player:state.owner,piece:piece, x:x, y:y, flag_x:flag_x, flag_y:flag_y};
     }
 
-    transition arb_piece(attacker: piece_info, target: piece_info) -> move {
+    transition compare_piece(attacker: piece_info, target: piece_info) -> move {
         let attack_result: u32 = 0u32;
         let victim: u64 = 0u64;
         let opp_victim: u64 = 0u64;
