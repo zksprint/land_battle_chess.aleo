@@ -1,34 +1,66 @@
 // The 'land_battle_chess' program.
+
+/*
+Y
+^
+|
++------+--------+------+--------+------+
+|      |   HQ   |      |   HQ   |      |
++------+--------+------+--------+------+
+|      |        |      |        |      |
++------+--------+------+--------+------+
+|      |  Camp  |      |  Camp  |      |
++------+--------+------+--------+------+
+|      |        |      |        |      |
++------+--------+------+--------+------+
+|      |  Camp  |      |  Camp  |      |
++------+--------+------+--------+------+
+|      |        |      |        |      |
++------+--------+------+--------+------+
+|      |        |      |        |      |
++------+--------+------+--------+------+
+|      |  Camp  |      |  Camp  |      |
++------+--------+------+--------+------+
+|      |        |      |        |      |
++------+--------+------+--------+------+
+|      |  Camp  |      |  Camp  |      |
++------+--------+------+--------+------+
+|      |        |      |        |      |
++------+--------+------+--------+------+
+|      |   HQ   |      |   HQ   |      |
++------+--------+------+--------+------+---> X
+
+position range:
+    0 <= X < 5
+    0 <= Y < 12
+
+piece value:
+    Empty = 0,
+    Flag = 1,
+    Bomb = 2,
+    Landmine = 3,
+    Engineer = 4,
+    Lieutenant = 5,
+    Captain = 6,
+    Major = 7,
+    Colonel = 8,
+    Brigadier = 9,
+    MajorGeneral = 10,
+    General = 11,
+    FieldMarshal = 12,
+    Opponent = 16,
+*/
+
 program land_battle_chess.aleo {
-    /* Piece
-        Empty = 0,
-        Flag = 1,
-        Bomb = 2,
-        Landmine = 3,
-        Engineer = 4,
-        Lieutenant = 5,
-        Captain = 6,
-        Major = 7,
-        Colonel = 8,
-        Brigadier = 9,
-        MajorGeneral = 10,
-        General = 11,
-        FieldMarshal = 12,
-        Unchanged = 15,
-        Opponent = 16,
-     */
+    //Each column of the board is represented by the "lineX" field.
     struct board_state {
-        line0: u64,
+        line0: u64, 
         line1: u64,
         line2: u64,
         line3: u64,
         line4: u64,
     }
 
-/* position range:
-0 <= X < 5
-0 <= Y < 12
-*/
     struct move {
         player: address,
 
@@ -119,7 +151,11 @@ program land_battle_chess.aleo {
 
         return true;
     }
+
 /*
+    Since many check functions generate large bytecode, to save on deployment costs,
+they are temporarily commented out.
+
     function check_flag(board: board_state, is_player2: bool) -> bool {
         let flag: u64 = 1u64;
         let base0: u64 = get_piece(board, 0u64, 11u32);
