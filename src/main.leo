@@ -132,6 +132,10 @@ program land_battle_chess.aleo {
         return (val & x) >> row;
     }
 
+/*
+    Since many check functions generate large bytecode, to save on deployment costs,
+they are temporarily commented out.
+
     function check_range(board: board_state, is_player2: bool) -> bool {
         let val: u64 = 1u64 << 30u32; 
         let mask: u64 = val - 1u64;
@@ -151,10 +155,6 @@ program land_battle_chess.aleo {
 
         return true;
     }
-
-/*
-    Since many check functions generate large bytecode, to save on deployment costs,
-they are temporarily commented out.
 
     function check_flag(board: board_state, is_player2: bool) -> bool {
         let flag: u64 = 1u64;
@@ -372,12 +372,15 @@ they are temporarily commented out.
             player_index: player_index,
         };
 
+/*
+    Since many check functions generate large bytecode, to save on deployment costs,
+they are temporarily commented out.
+
         let is_player2: bool = player_index == 2u32;
         if !check_range(board, is_player2) {
             return (state, false);
         }
 
-/*
         if !check_bomb(board, is_player2) {
             return (state, false);
         }
