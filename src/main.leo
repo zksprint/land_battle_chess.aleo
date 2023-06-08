@@ -446,12 +446,8 @@ they are temporarily commented out.
         }
 
         let piece: u64 = get_piece(board, x, y);
-        let flag_x: u64 = 5u64;
-        let flag_y: u32 = 0u32;
-        if piece == 12u64 {
-            flag_x = state.flag_x;
-            flag_y = state.flag_y;
-        }
+        let flag_x: u64 = piece == 12u64 ? state.flag_x : 5u64;
+        let flag_y: u32 = piece == 12u64 ? state.flag_y : 12u32;
 
         return (player_state {
             owner: self.caller,
@@ -467,12 +463,8 @@ they are temporarily commented out.
 
     transition whisper_piece(state: player_state, x: u64, y: u32) -> piece_info {
         let piece: u64 = get_piece(state.board, x, y);
-        let flag_x: u64 = 5u64;
-        let flag_y: u32 = 0u32;
-        if piece == 12u64 {
-            flag_x = state.flag_x;
-            flag_y = state.flag_y;
-        }
+        let flag_x: u64 = piece == 12u64 ? state.flag_x : 5u64;
+        let flag_y: u32 = piece == 12u64 ? state.flag_y : 12u32;
 
         return piece_info { owner: state.arbiter, gates: 0u64, player:state.owner,piece:piece, x:x, y:y, flag_x:flag_x, flag_y:flag_y};
     }
@@ -481,10 +473,6 @@ they are temporarily commented out.
         let attack_result: u32 = 0u32;
         let victim: u64 = 0u64;
         let opp_victim: u64 = 0u64;
-        let flag_x: u64 = 5u64;
-        let flag_y: u32 = 12u32;
-        let opp_flag_x: u64 = 5u64;
-        let opp_flag_y: u32 = 12u32;
         let game_winner: u32 = 0u32;
 
         if target.piece == 0u64 {
@@ -515,15 +503,10 @@ they are temporarily commented out.
             victim = attacker.piece;
         }
 
-        if victim == 12u64 {
-            flag_x = attacker.flag_x;
-            flag_y = attacker.flag_y;
-        }
-
-        if opp_victim == 12u64 {
-            opp_flag_x = target.flag_x;
-            opp_flag_y = target.flag_y;
-        }
+        let flag_x: u64 = victim == 12u64 ? attacker.flag_x : 5u64;
+        let flag_y: u32 = victim == 12u64 ? attacker.flag_y : 12u32;
+        let opp_flag_x: u64 = opp_victim == 12u64 ? attacker.flag_x : 5u64;
+        let opp_flag_y: u32 = opp_victim == 12u64 ? attacker.flag_y : 12u32;
 
         // flag
         if victim == 1u64 {
