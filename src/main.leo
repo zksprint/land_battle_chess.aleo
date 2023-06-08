@@ -468,7 +468,6 @@ they are temporarily commented out.
             attack_result = 0u32;
         } else if attacker.piece == 2u64 || target.piece == 2u64 { //bomb
             attack_result = 2u32;
-            opp_victim = target.piece;
         } else if target.piece == 3u64 {//landmine
             if attacker.piece == 4u64 {//engineer
                 attack_result = 1u32;

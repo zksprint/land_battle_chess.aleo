@@ -1,6 +1,6 @@
 {
     "program": "land_battle_chess.aleo",
-    "version": "0.0.0",
+    "version": "0.1.0",
     "description": "",
     "development": {
         "private_key": "APrivateKey1zkpBi4BYydwCZ1tU71WKLCSbxPLzdFHp9aYgGPBVn9wYBKN",
