@@ -409,7 +409,6 @@ they are temporarily commented out.
         public x: u64, public y: u32, public target_x: u64, public target_y: u32) -> (player_state, piece_info) {
         assert_eq(state.game_winner, 0u32);
         let board: board_state = board_state{line0:state.board.line0, line1:state.board.line1,line2:state.board.line2, line3:state.board.line3,line4:state.board.line4};
-        let game_winner: u32 = 0u32;
         if self_move.x < 5u64 {
             let piece: u64 = get_piece(board, self_move.x, self_move.y);
             board = empty_board(board, self_move.x, self_move.y);
@@ -429,14 +428,12 @@ they are temporarily commented out.
             }
         }
 
-        if self_move.game_winner != 0u32 {
-            game_winner = self_move.game_winner;
-        } else if opp_move.game_winner != 0u32 {
+        let game_winner: u32 = self_move.game_winner;
+        if game_winner == 0u32 {
             game_winner = opp_move.game_winner;
         }
 
-        if game_winner != 0u32 {
-            return (player_state {
+        let new_state: player_state = player_state {
                 owner: self.caller,
                 gates: 0u64,
                 board: board,
@@ -445,23 +442,12 @@ they are temporarily commented out.
                 flag_y: state.flag_y,
                 arbiter: state.arbiter,
                 player_index: state.player_index,
-            }, piece_info { owner: state.arbiter, gates: 0u64, player:state.owner, piece:0u64, x:0u64, y:0u32, flag_x:0u64, flag_y:0u32});
-        }
+            };
 
-        let piece: u64 = get_piece(board, x, y);
+        let piece: u64 = game_winner == 0u32 ? get_piece(board, x, y) : 0u64;
         let flag_x: u64 = piece == 12u64 ? state.flag_x : 5u64;
         let flag_y: u32 = piece == 12u64 ? state.flag_y : 12u32;
-
-        return (player_state {
-            owner: self.caller,
-            gates: 0u64,
-            board: board,
-            flag_x: state.flag_x,
-            flag_y: state.flag_y,
-            arbiter: state.arbiter,
-            game_winner: 0u32,
-            player_index: state.player_index,
-        }, piece_info { owner: state.arbiter, gates: 0u64, player:state.owner, piece:piece, x:x, y:y, flag_x:flag_x, flag_y:flag_y});
+        return (new_state, piece_info { owner: state.arbiter, gates: 0u64, player:state.owner, piece:piece, x:x, y:y, flag_x:flag_x, flag_y:flag_y});
     }
 
     transition whisper_piece(state: player_state, x: u64, y: u32) -> piece_info {
