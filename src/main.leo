@@ -62,6 +62,7 @@ program land_battle_chess.aleo {
     }
 
     struct move {
+        game_id: u64,
         player: address,
 
         x: u64,
@@ -83,6 +84,7 @@ program land_battle_chess.aleo {
         owner: address,
         gates: u64,
 
+        game_id: u64
         board: board_state,
         flag_x: u64,
         flag_y: u32,
@@ -96,6 +98,7 @@ program land_battle_chess.aleo {
         owner: address,
         gates: u64,
 
+        game_id: u64
         player: address,
         piece: u64,
         x: u64,
@@ -357,12 +360,13 @@ they are temporarily commented out.
 */
 
     transition player_initialize_board(line0: u64, line1: u64, line2: u64, line3: u64, line4: u64,
-        flag_x: u64, flag_y: u32, public player_index: u32, public arbiter: address) -> (player_state, bool) {
+        flag_x: u64, flag_y: u32, public game_id: u64, public player_index: u32, public arbiter: address) -> (player_state, bool) {
         let board: board_state = board_state{line0:line0, line1:line1,line2:line2,line3:line3,line4:line4};
         let state:player_state = player_state{
             owner: self.caller,
             gates: 0u64,
 
+            game_id: game_id,
             board: board,
             flag_x: flag_x,
             flag_y: flag_y,
@@ -409,22 +413,24 @@ they are temporarily commented out.
         public x: u64, public y: u32, public target_x: u64, public target_y: u32) -> (player_state, piece_info) {
         assert_eq(state.game_winner, 0u32);
         let board: board_state = board_state{line0:state.board.line0, line1:state.board.line1,line2:state.board.line2, line3:state.board.line3,line4:state.board.line4};
+
+        // if x == 5u64, the move is dummy move
         if self_move.x < 5u64 {
             let piece: u64 = get_piece(board, self_move.x, self_move.y);
-            board = empty_board(board, self_move.x, self_move.y);
+            board = empty_square(board, self_move.x, self_move.y);
             if self_move.attack_result == 0u32 || self_move.attack_result == 1u32 {// win or simple move
                 board = place_piece(board, self_move.target_x, self_move.target_y, piece);
             } else if self_move.attack_result == 2u32 { // draw
-                board = empty_board(board, self_move.x, self_move.y);
+                board = empty_square(board, self_move.x, self_move.y);
             }
         }
         
         if opp_move.x < 5u64 {
-            board = empty_board(board, opp_move.x, opp_move.y);
+            board = empty_square(board, opp_move.x, opp_move.y);
             if opp_move.attack_result == 0u32 || opp_move.attack_result == 1u32 {
                 board = place_piece(board, opp_move.target_x, opp_move.target_y, 16u64);
             } else if opp_move.attack_result == 2u32 {
-                board = empty_board(board, opp_move.target_x, opp_move.target_y);
+                board = empty_square(board, opp_move.target_x, opp_move.target_y);
             }
         }
 
@@ -436,6 +442,7 @@ they are temporarily commented out.
         let new_state: player_state = player_state {
                 owner: self.caller,
                 gates: 0u64,
+                game_id: state.game_id,
                 board: board,
                 game_winner: game_winner,
                 flag_x: state.flag_x,
@@ -447,7 +454,7 @@ they are temporarily commented out.
         let piece: u64 = game_winner == 0u32 ? get_piece(board, x, y) : 0u64;
         let flag_x: u64 = piece == 12u64 ? state.flag_x : 5u64;
         let flag_y: u32 = piece == 12u64 ? state.flag_y : 12u32;
-        return (new_state, piece_info { owner: state.arbiter, gates: 0u64, player:state.owner, piece:piece, x:x, y:y, flag_x:flag_x, flag_y:flag_y});
+        return (new_state, piece_info { owner: state.arbiter, gates: 0u64, game_id:state.game_id, player:state.owner, piece:piece, x:x, y:y, flag_x:flag_x, flag_y:flag_y});
     }
 
     transition whisper_piece(state: player_state, x: u64, y: u32) -> piece_info {
@@ -455,16 +462,17 @@ they are temporarily commented out.
         let flag_x: u64 = piece == 12u64 ? state.flag_x : 5u64;
         let flag_y: u32 = piece == 12u64 ? state.flag_y : 12u32;
 
-        return piece_info { owner: state.arbiter, gates: 0u64, player:state.owner,piece:piece, x:x, y:y, flag_x:flag_x, flag_y:flag_y};
+        return piece_info { owner: state.arbiter, gates: 0u64, game_id:state.game_id, player:state.owner,piece:piece, x:x, y:y, flag_x:flag_x, flag_y:flag_y};
     }
 
-    transition compare_piece(attacker: piece_info, target: piece_info) -> (move, move) {
+    transition compare_piece(attacker: piece_info, target: piece_info) -> move {
+        assert_eq(attacker.game_id, target.game_id);
         let attack_result: u32 = 0u32;
         let victim: u64 = 0u64;
         let opp_victim: u64 = 0u64;
         let game_winner: u32 = 0u32;
 
-        if target.piece == 0u64 {
+        if target.piece == 0u64 {//empty square
             attack_result = 0u32;
         } else if attacker.piece == 2u64 || target.piece == 2u64 { //bomb
             attack_result = 2u32;
@@ -503,7 +511,8 @@ they are temporarily commented out.
             game_winner = 1u32;
         }
 
-        return (move {
+        return move {
+            game_id: attacker.game_id,
             player: attacker.player,
             x: attacker.x,
             y: attacker.y,
@@ -515,22 +524,10 @@ they are temporarily commented out.
             opp_flag_x: opp_flag_x,
             opp_flag_y: opp_flag_y,
             game_winner: game_winner,
-        }, move {
-            player: target.player,
-            x: attacker.x,
-            y: attacker.y,
-            target_x: target.x,
-            target_y: target.y,
-            attack_result: attack_result,
-            flag_x: flag_x,
-            flag_y: flag_y,
-            opp_flag_x: opp_flag_x,
-            opp_flag_y: opp_flag_y,
-            game_winner: game_winner,
-        });
+        };
     }
 
-    function empty_board(board: board_state, x: u64, y: u32) -> board_state {
+    function empty_square(board: board_state, x: u64, y: u32) -> board_state {
         let line0: u64 = board.line0;
         let line1: u64 = board.line1;
         let line2: u64 = board.line2;
