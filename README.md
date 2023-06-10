@@ -16,11 +16,11 @@ In the game, there are 3 parties: player1, player2 and the arbiter. When a piece
 
 See ./run.sh for an example.
 
-## 1. Both Players Initialize their Board
-## 2. Player1 Moves a piece
-## 3. Player2 Whispers the Arbiter the Target Piece
-## 4. Aribter Compares pieces
-## 5. Player2 Moves a piece
-## 6. Player1 Whispers the Arbiter the Target Piece
-## 7. Aribter Compares pieces
-## 8. Continue until Game Ends
+1. Both Players Initialize their Board
+2. Player1 Moves a piece
+3. Player2 Whispers the Arbiter the Target Piece
+4. Aribter Compares pieces
+5. Player2 Moves a piece
+6. Player1 Whispers the Arbiter the Target Piece
+7. Aribter Compares pieces
+8. Continue until Game Ends
