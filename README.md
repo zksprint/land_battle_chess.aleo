@@ -1,7 +1,6 @@
 <img alt="land battle chess" width="1412" src="resources/land_battle_chess.webp">
 
 - [Summary](#summary)
-- [How to Build](#how-to-build)
 - [Game Flow](#game-flow)
 
 # Summary
@@ -12,81 +11,16 @@ In the game, there are 3 parties: player1, player2 and the arbiter. When a piece
 
 <img alt="land battle chess" width="1412" src="resources/land_battle_chess_steps.png">
 
-# How to Build
-
-To compile this Leo program, run:
-```bash
-leo build
-```
 
 # Game Flow
+
+See ./run.sh for an example.
+
 ## 1. Both Players Initialize their Board
-**Player1 RUN**
-```
-```
-**OUTPUT**
-```
-```
-
-**Player2 RUN**
-```
-```
-**OUTPUT**
-```
-```
-
 ## 2. Player1 Moves a piece
-**RUN**
-```
-```
-
-**OUTPUT**
-```
-```
-
 ## 3. Player2 Whispers the Arbiter the Target Piece
-**RUN**
-```
-```
-
-**OUTPUT**
-```
-```
-
 ## 4. Aribter Compares pieces
-**RUN**
-```
-```
-
-**OUTPUT**
-```
-```
-
 ## 5. Player2 Moves a piece
-**RUN**
-```
-```
-
-**OUTPUT**
-```
-```
-
 ## 6. Player1 Whispers the Arbiter the Target Piece
-**RUN**
-```
-```
-
-**OUTPUT**
-```
-```
-
 ## 7. Aribter Compares pieces
-**RUN**
-```
-```
-
-**OUTPUT**
-```
-```
-
 ## 8. Continue until Game Ends
