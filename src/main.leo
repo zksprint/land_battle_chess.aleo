@@ -409,22 +409,22 @@ they are temporarily commented out.
         return (state, true);
     }
 
-    transition move_piece(state: player_state, public opp_move: move,
+    transition move_piece(state: player_state, public prev_move: move,
         public x: u64, public y: u32, public target_x: u64, public target_y: u32) -> (player_state, piece_info) {
         assert_eq(state.game_winner, 0u32);
         let board: board_state = board_state{line0:state.board.line0, line1:state.board.line1,line2:state.board.line2, line3:state.board.line3,line4:state.board.line4};
 
         // if x == 5u64, the move is dummy move
-        if opp_move.x < 5u64 {
-            board = empty_square(board, opp_move.x, opp_move.y);
-            if opp_move.attack_result == 0u32 || opp_move.attack_result == 1u32 {
-                board = place_piece(board, opp_move.target_x, opp_move.target_y, 13u64);
-            } else if opp_move.attack_result == 2u32 {
-                board = empty_square(board, opp_move.target_x, opp_move.target_y);
+        if prev_move.x < 5u64 {
+            board = empty_square(board, prev_move.x, prev_move.y);
+            if prev_move.attack_result == 0u32 || prev_move.attack_result == 1u32 {
+                board = place_piece(board, prev_move.target_x, prev_move.target_y, 13u64);
+            } else if prev_move.attack_result == 2u32 {
+                board = empty_square(board, prev_move.target_x, prev_move.target_y);
             }
         }
 
-        let game_winner: u32 = opp_move.game_winner;
+        let game_winner: u32 = prev_move.game_winner;
         let new_state: player_state = player_state {
                 owner: self.caller,
                 gates: 0u64,
@@ -444,16 +444,16 @@ they are temporarily commented out.
         return (new_state, piece_info { owner: state.arbiter, gates: 0u64, game_id:state.game_id, player:state.owner, piece:piece, x:x, y:y, flag_x:flag_x, flag_y:flag_y});
     }
 
-    transition whisper_piece(state: player_state, public self_move: move, public target_x: u64, public target_y: u32) -> (player_state, piece_info) {
+    transition whisper_piece(state: player_state, public prev_move: move, public target_x: u64, public target_y: u32) -> (player_state, piece_info) {
         assert_eq(state.game_winner, 0u32);
         let board: board_state = board_state{line0:state.board.line0, line1:state.board.line1,line2:state.board.line2, line3:state.board.line3,line4:state.board.line4};
-        if self_move.x < 5u64 {
-            let piece: u64 = get_piece(board, self_move.x, self_move.y);
-            board = empty_square(board, self_move.x, self_move.y);
-            if self_move.attack_result == 0u32 || self_move.attack_result == 1u32 {// win or simple move
-                board = place_piece(board, self_move.target_x, self_move.target_y, piece);
-            } else if self_move.attack_result == 2u32 { // draw
-                board = empty_square(board, self_move.target_x, self_move.target_y);
+        if prev_move.x < 5u64 {
+            let piece: u64 = get_piece(board, prev_move.x, prev_move.y);
+            board = empty_square(board, prev_move.x, prev_move.y);
+            if prev_move.attack_result == 0u32 || prev_move.attack_result == 1u32 {// win or simple move
+                board = place_piece(board, prev_move.target_x, prev_move.target_y, piece);
+            } else if prev_move.attack_result == 2u32 { // draw
+                board = empty_square(board, prev_move.target_x, prev_move.target_y);
             }
         }
         
