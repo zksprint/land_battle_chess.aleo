@@ -43,14 +43,7 @@ ARBITER_PROGRAM="{
   \"license\": \"MIT\"
 }"
 
-DUMMY_MOVE1="{
-    game_id: 0u64,
-    player: aleo1hv87s9eq3dj62tjm9ctp2ndzpysfwhrq79jd4tgdx2t3prqmsugs2stkw0,
-    x: 5u64, y: 0u32, target_x: 5u64, target_y: 0u32, attack_result: 0u32,
-    flag_x: 5u64, flag_y: 0u32, opp_flag_x: 5u64, opp_flag_y: 0u32, game_winner: 0u32
-}"
-
-DUMMY_MOVE2="{
+DUMMY_MOVE="{
     game_id: 0u64,
     player: aleo1g45rz8udefg6shnvjwvhk37z5csu8p7uu6jxfhkguwcw27gmv5fq35w55q,
     x: 5u64, y: 0u32, target_x: 5u64, target_y: 0u32, attack_result: 0u32,
@@ -196,7 +189,7 @@ echo "
 "
 echo "$PLAYER1_PROGRAM" > program.json
 
-leo run move_piece "$STATE1" "$DUMMY_MOVE2" 0u64 5u32 0u64 6u32
+leo run move_piece "$STATE1" "$DUMMY_MOVE" 0u64 5u32 0u64 6u32
 
 # output:
 STATE1="{                                                                                                                                                        
@@ -239,7 +232,7 @@ echo "
 "
 echo "$PLAYER2_PROGRAM" > program.json
 
-leo run whisper_piece "$STATE2" "$DUMMY_MOVE2" 0u64 6u32
+leo run whisper_piece "$STATE2" "$DUMMY_MOVE" 0u64 6u32
 
 # output:
 STATE2="{
