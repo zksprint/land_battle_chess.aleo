@@ -77,10 +77,10 @@ player2 board:
 +------+------+------+------+------+
 
 ```
-1. Player1 Moves a piece
-2. Player2 Whispers the Arbiter the Target Piece
-3. Aribter Compares pieces
-4. Player2 Moves a piece
-5. Player1 Whispers the Arbiter the Target Piece
-6. Aribter Compares pieces
-7. Continue until Game Ends
+2. Player1 Moves a piece
+3. Player2 Whispers the Arbiter the Target Piece
+4. Aribter Compares pieces
+5. Player2 Moves a piece
+6. Player1 Whispers the Arbiter the Target Piece
+7. Aribter Compares pieces
+8. Continue until Game Ends
