@@ -17,10 +17,70 @@ In the game, there are 3 parties: player1, player2 and the arbiter. When a piece
 See ./run.sh for an example.
 
 1. Both Players Initialize their Board
-2. Player1 Moves a piece
-3. Player2 Whispers the Arbiter the Target Piece
-4. Aribter Compares pieces
-5. Player2 Moves a piece
-6. Player1 Whispers the Arbiter the Target Piece
-7. Aribter Compares pieces
-8. Continue until Game Ends
+
+    Smaple board:
+```
+player1 board:
++------+------+------+------+------+
+| 司令 | 军棋  | 地雷 | 炸弹  | 工兵 |
++------+------+------+------+------+
+| 军长 | 地雷  | 地雷 | 旅长  | 旅长 |
++------+------+------+------+------+
+| 团长 |      | 团长  |      | 营长 |
++------+------+------+------+------+
+| 营长 | 连长  | 连长 | 连长  | 师长 |
++------+------+------+------+------+
+| 师长 |      | 连长  |      | 排长 |
++------+------+------+------+------+
+| 炸弹 | 排长  | 工兵 | 工兵  | 工兵 |
++------+------+------+------+------+
+| XXX  | XXX  | XXX  | XXX  | XXX  |
++------+------+------+------+------+
+| XXX  | XXX  | XXX  | XXX  | XXX  |
++------+------+------+------+------+
+| XXX  | XXX  | XXX  | XXX  | XXX  |
++------+------+------+------+------+
+| XXX  | XXX  | XXX  | XXX  | XXX  |
++------+------+------+------+------+
+| XXX  | XXX  | XXX  | XXX  | XXX  |
++------+------+------+------+------+
+| XXX  | XXX  | XXX  | XXX  | XXX  |
++------+------+------+------+------+
+
+player2 board:
++------+------+------+------+------+
+| l0   | l1   | l2   | l3   | l4   |
++------+------+------+------+------+
+| XXX  | XXX  | XXX  | XXX  | XXX  |
++------+------+------+------+------+
+| XXX  | XXX  | XXX  | XXX  | XXX  |
++------+------+------+------+------+
+| XXX  | XXX  | XXX  | XXX  | XXX  |
++------+------+------+------+------+
+| XXX  | XXX  | XXX  | XXX  | XXX  |
++------+------+------+------+------+
+| XXX  | XXX  | XXX  | XXX  | XXX  |
++------+------+------+------+------+
+| XXX  | XXX  | XXX  | XXX  | XXX  |
++------+------+------+------+------+
+| 营长 | 连长  | 连长 | 连长  | 师长 |
++------+------+------+------+------+
+| 师长 |       | 连长 |      | 排长 |
++------+------+------+------+------+
+| 炸弹 | 排长  | 工兵 | 工兵  | 工兵 |
++------+------+------+------+------+
+| 团长 |      | 团长  |      | 营长 |
++------+------+------+------+------+
+| 军长 | 地雷  | 地雷 | 旅长  | 旅长 |
++------+------+------+------+------+
+| 司令 | 地雷  | 炸弹 | 军棋  | 工兵 |
++------+------+------+------+------+
+
+```
+1. Player1 Moves a piece
+2. Player2 Whispers the Arbiter the Target Piece
+3. Aribter Compares pieces
+4. Player2 Moves a piece
+5. Player1 Whispers the Arbiter the Target Piece
+6. Aribter Compares pieces
+7. Continue until Game Ends
