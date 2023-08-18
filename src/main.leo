@@ -466,7 +466,7 @@ they are temporarily commented out.
             gates: 0u64,
             game_id: state.game_id,
             board: board,
-            game_winner: state.game_winner,
+            game_winner: prev_move.game_winner,
             flag_x: state.flag_x,
             flag_y: state.flag_y,
             arbiter: state.arbiter,
